@@ -8,6 +8,7 @@ This is a temporary script file.
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 
 df = pd.read_csv("records_final_series_test_final_corrected_v2.csv")
@@ -27,7 +28,7 @@ for i in df.index:
     else:
         player_dict_temp_3[df["Player"][i]] = [i]
         
-print(player_dict_temp_3['Aamer Malik'])
+#print(player_dict_temp_3['Aamer Malik'])
 
 ''' finding the '''
 trps = dict() #total runs per series
@@ -81,8 +82,11 @@ Sorted_list_decade_weights = [(k,player_dict_temp_4[k]) for k in sorted(player_d
 
 '''printing the sorted list of all players above 40 innings'''
 print('List of players using only decade weights')
-for k,v in Sorted_list_decade_weights[:10]:
-    print(k,":",v)
+fd = open('document.csv','a')
+for k, v in Sorted_list_decade_weights:
+    x = k + "," + str(v)+'\n'
+    fd.write(x)
+fd.close()
     
 
     
