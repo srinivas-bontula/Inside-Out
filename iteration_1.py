@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-df = pd.read_csv("C:/Users/rajes/Inside-Out/records_final_series_test_final_corrected_v2.csv")
+df = pd.read_csv("records_final_series_test_final_corrected_v2.csv")
 
 df.head(6)
 
@@ -81,7 +81,9 @@ Sorted_list_decade_weights = [(k,player_dict_temp_4[k]) for k in sorted(player_d
 
 '''printing the sorted list of all players above 40 innings'''
 print('List of players using only decade weights')
-for k,v in Sorted_list_decade_weights:
+for k,v in Sorted_list_decade_weights[:10]:
     print(k,":",v)
+    
+
     
     
