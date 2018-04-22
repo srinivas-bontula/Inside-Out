@@ -14,7 +14,7 @@ import itertools as it
 import threading
 
 final_list = []
-download_dir = "records_final_series_test_final_bowlers_v4.csv"
+download_dir = "records_final_series_test_final_bowlers_v6.csv"
 #records = []
 
 proxies = {}
@@ -117,9 +117,15 @@ def get_details(appended_url, series_code,country_name):
             
         
         for tdTag in tdTags:
+            tdTag = tdTag.text.strip()
+            #print(tdTag)
             #print(tdTag.text)
             #record.append(tdTag.text.strip())
-            record_string = record_string + tdTag.text.strip() + ","
+            if "/" in tdTag:
+                tdTag = tdTag.replace("/","|")
+                print(tdTag)
+                
+            record_string = record_string + tdTag + ","
         
         #record_string.strip(-1)
         record_string = record_string + series_num + "," +  H_A + "," + str(decade_val) + "\n"
