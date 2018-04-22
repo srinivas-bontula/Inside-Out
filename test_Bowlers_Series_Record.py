@@ -14,7 +14,7 @@ import itertools as it
 import threading
 
 final_list = []
-download_dir = "records_final_series_test_final_bowlers_v3.csv"
+download_dir = "records_final_series_test_final_bowlers_v4.csv"
 #records = []
 
 proxies = {}
@@ -204,7 +204,7 @@ if __name__ == '__main__':
     #cricket_url = "http://www.howstat.com/cricket/Statistics/Series/SeriesListCountry.asp?A=AUS&B=BAN&W=X"
     #print(all_series_list)
      #where you want the file to be downloaded to 
-    header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index \n"
+    header = "Player,Country,Mat,Overs,Maidens,Runs,Wickets,Best,5w,10w,Avg,S/R,E/R,Series_Code,H/A,Decade_Index\n"
     file = open(download_dir, "a")
     file.write(header)
     file.close()
