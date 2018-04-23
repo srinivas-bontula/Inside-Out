@@ -1,0 +1,108 @@
+Shoaib Akhtar : 2.31436124903
+Grimmett C V : 1.74104661707
+Steyn D W : 1.58704049043
+Tate M W : 1.5717237002
+Muralitharan M : 1.565875378
+Pollock S M : 1.51023071562
+McGrath G D : 1.46251519095
+Garner J : 1.44018745713
+Jadeja R A : 1.43827785874
+Ambrose C E L : 1.43242455149
+Imran Khan : 1.41920920988
+Lock G A R : 1.39488599807
+Marshall M D : 1.36140303251
+Laker J C : 1.359801554
+Hadlee R J : 1.359604558
+Trueman F S : 1.35650291488
+Donald A A : 1.34345054941
+Holding M A : 1.33981630388
+Ashwin R : 1.33820831222
+Philander V D : 1.33664156494
+Miller K R : 1.33614821411
+Davidson A K : 1.33600295327
+Gillespie J N : 1.32986158859
+Hazlewood J R : 1.31256950385
+Johnston W A : 1.3050812101
+Warne S K : 1.28026714932
+Lillee D K : 1.27275840764
+Anderson J M : 1.25975978118
+Johnson M G : 1.24827283454
+McKenzie G D : 1.24453826468
+Yasir Shah : 1.24223794941
+MacGill S C G : 1.23460446266
+Lee B : 1.22692748889
+Fraser A R C : 1.22493569701
+Walsh C A : 1.22178632378
+Harmison S J : 1.20956471164
+Swann G P : 1.20595458316
+Kumble A : 1.20588090351
+Martin C S : 1.20546858908
+Hall W W : 1.20512176204
+Roberts A M E : 1.20086501576
+Waqar Younis : 1.19567742576
+Boult T A : 1.19547621907
+Wasim Akram : 1.18535251061
+Morkel M : 1.18201332895
+Lindwall R R : 1.15642192334
+Underwood D L : 1.15537248038
+Bedser A V : 1.14883281071
+Bishop I R : 1.14879340964
+Saqlain Mushtaq : 1.14420363365
+Khan Z : 1.14293466581
+Hughes M G : 1.14290861976
+Siddle P M : 1.14282097619
+Starc M A : 1.14236225293
+Ramadhin S : 1.14097151686
+Tayfield H J : 1.14079397736
+Statham J B : 1.13950352892
+Vaas W P U J C : 1.12942969752
+Ntini M : 1.12458834128
+Kapil Dev : 1.12298219507
+Herath H M R K B : 1.12175722681
+Willis R G D : 1.1101367915
+Srinath J : 1.10565088142
+Streak H H : 1.09762898981
+Snow J A : 1.09627123435
+Hoggard M J : 1.09071820996
+Sharma I : 1.09031350073
+Broad S C J : 1.08425409934
+Botham I T : 1.07852277442
+Benaud R : 1.06972533523
+Gibbs L R : 1.06762371259
+Titmus F J : 1.06534450107
+Caddick A R : 1.06282190608
+Cairns C L : 1.05757115111
+Southee T G : 1.05158797812
+Lyon N M : 1.04948344345
+Sarfraz Nawaz : 1.02609215472
+Edwards F H : 1.02433063471
+Bedi B S : 1.02387921291
+Umar Gul : 1.02095861394
+Iqbal Qasim M : 1.01952051368
+Saeed Ajmal : 1.01527989752
+Harbhajan Singh : 1.00973692698
+Thomson J R : 1.0042708198
+Gough D : 1.00176988001
+Sobers G S A : 1.00031726097
+McDermott C J : 0.993032533589
+Kallis J H : 0.990844796739
+Alderman T M : 0.985960847851
+Flintoff A : 0.97842167684
+Vettori D L : 0.975589852143
+Mankad M H : 0.974932875521
+Morrison D K : 0.960572702855
+Kaneria D : 0.95100516083
+Abdul Qadir : 0.938569567237
+Chandrasekhar B S : 0.927253313429
+Shakib Al Hasan : 0.920580031277
+Lawson G F : 0.920158771075
+Panesar M S : 0.895490969258
+Shastri R J : 0.865952992839
+Prasanna E A S : 0.825127702422
+Mushtaq Ahmed : 0.796431374175
+Venkataraghavan S : 0.734223631983
+
+weighted_runs
+bowl1=np.zeros(len(df1.index))
+for i in df1.index:
+    bowl1[i] = (wtrps[series_code[i]] - weighted_runs[i])/(tops
