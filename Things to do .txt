@@ -1,10 +1,10 @@
 Things to do -> 
 
-a.) All time team X1s 
+a.) All time team X1s - completed
 
-b.) Modern all time team X1s
+b.) Modern all time team X1s - completed
 
-c.) All time X1s (best players ever) 
+c.) All time X1s (best players ever) - completed
 
 d.) Country wise away tours prediction (complete squad) 
 
@@ -14,7 +14,11 @@ i.) Comparing the class material and embedding it in the project.
 
 ODIs
 
-f.) all of the above
+a.) All time team X1s
+
+b.) Modern all time team X1s
+
+c.) All time X1s (best players ever) 
 
 g.) World cup 2019 prediction 
 
