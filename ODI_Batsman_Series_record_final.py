@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 25 15:39:13 2018
+
+@author: rajes
+"""
+
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -9,6 +16,7 @@ from functools import partial
 from geopy.exc import GeocoderTimedOut
 from time import sleep
 import geocoder
+import pandas as pd
 
 final_list = []
 #records = []
@@ -74,42 +82,57 @@ def get_series_data(decades_tuple,cricket_url):
     #print_in_csv(record_string)    
     return record_string 
     
-def get_series_data_code(decades_tuple,series_code):
-    elements = []  
+def get_series_data_code(decades_tuple, df, series_code):
+    #elements = []  
     record_string=""
     #series_code = "0779"       
     url = 'http://www.howstat.com/cricket/Statistics/Series/SeriesStats_ODI.asp?SeriesCode='+str(series_code)
     #print(url)
-    page = requests.get(url)
+    '''page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    odi_series = soup.find_all('tr', attrs={'bgcolor': re.compile("#")})
+    odi_series = soup.find_all('tr', attrs={'bgcolor': re.compile("#")})'''
     country_arr = []
+    if int(series_code) in df.index:
+        country = df["Series Country"][int(series_code)]
+        if "," in country:
+            y = country.split(",")
+            for i in y:
+                country_arr.append(i.strip())
+        else:
+            country_arr.append(country.strip())
+        appended_url = url + '&Scope=All#bat'
+        appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
+        #series_url = 'http://www.howstat.com/cricket/Statistics/Series/' + series_code + '&Scope=All#bat'
+        #country_name = 
+        record_string = record_string + get_details(appended_url, series_code,country_arr,decades_tuple)
+        #print_in_csv(record_string)
+        return record_string
+    else:
+        return ""
     #elements = odi_series[0].find_all('td')
     #print(elements[2].text)
-    for row in odi_series:
+    '''for row in odi_series:
         elements = row.find_all('td')
         location = elements[2].text
-        location = location.split(",")[-1]
+        location = location.split(",")[-1].strip()
         #print(location)
-        country = country_location(location)
+        count = 0
+        country = country_location(location,count)
         #print(location, "->", country)
-        if country not in country_arr and country:
+        if (country not in country_arr) and country != '':
             country_arr.append(country)
+        print (country)
     #country_arr.replace("United Kingdom", "England") 
     for index, item in enumerate(country_arr):
-        if item == "United Kingdom":
+        if item == "UK":
             country_arr[index] = "England"
+        elif item not in country_names:
+            country_arr.pop(index)
+    print(country_arr)'''
+    
 
-    #print(country_arr)
-    appended_url = url + '&Scope=All#bat'
-    appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
-    #series_url = 'http://www.howstat.com/cricket/Statistics/Series/' + series_code + '&Scope=All#bat'
-    #country_name = 
-    record_string = record_string + get_details(appended_url, series_code,country_arr,decades_tuple)
-    #print_in_csv(record_string)
-    return record_string
-def country_location(city): 
-    '''geolocator = Nominatim()
+'''def country_location(city,count): 
+    geolocator = Nominatim()
     try:
         print(city)
         sleep(0.1)
@@ -120,16 +143,22 @@ def country_location(city):
             return country
     except GeocoderTimedOut as e:
         print("Error: geocode failed on input %s with message %s"%(city, e))    
-    return'''
-    print(city)
+    return
+    #print(city)
+    #sleep(1)
     g = geocoder.google(city)
     total_addr = g.address
     if not total_addr:
-        print(city)
+        if count != 5:
+            sleep(0.1)
+            count+=1
+            country_location(city,count)
+        else:
+            return "" 
     else:    
         country = total_addr.split(",")[-1].strip()
-        return country
-    return ""    
+        return country'''
+       
     
 def get_details(appended_url, series_num,country_name,decades_tuple):
     #page = requests.get(appended_url)
@@ -263,9 +292,10 @@ def all_series_of_decade(url):
             t = i.text.strip()
             if "-" not in t and t != "":
                 if t in country_names:
+                    #print(t)
                     non_bilateral_series.append(odi_series_code[count])
             count += 1
-
+    #print(len(non_bilateral_series))
     return odi_series_code, non_bilateral_series     
     '''for link in odi_series:
         series_url = link.get('href')
@@ -296,26 +326,29 @@ if __name__ == '__main__':
     #print(countries_list)
     for country1,country2 in list(it.combinations(countries_list,2)):
         list_series_url = partial_url + "A=" + country1 +"&B=" + country2  
-        all_series_list.append(list_series_url)        
+        all_series_list.append(list_series_url)    
+    
+    df = pd.read_csv("Series_code_to_country.csv", index_col = 0)
+    
     #cricket_url = "http://www.howstat.com/cricket/Statistics/Series/SeriesListCountry.asp?A=AUS&B=BAN&W=X"
     #print(all_series_list)
     
-    download_dir = "records_final_series_odi_v5.csv" #where you want the file to be downloaded to 
+    download_dir = "records_final_series_odi_v8.csv" #where you want the file to be downloaded to 
     file = open(download_dir, "a") 
     header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index \n"
     file.write(header)
     '''for snl_link in all_series_list[:1]:
         threads.append(threading.Thread(target=get_series_data, args=(snl_link,)))'''
         
-    '''for code in non_bilateral:
-        threads.append(threading.Thread(target=get_series_data_code, args=(code,)))
+    '''for code in non_bilateral[:1]:
+        threads.append(threading.Thread(target=get_series_data_code, args=(decades_tuple,code,)))
         
     for thread in threads:
         thread.start()
     
     for thread in threads:
         thread.join()'''
-    '''get_series_data_with_decades_list = partial(get_series_data,decades_tuple)
+    get_series_data_with_decades_list = partial(get_series_data,decades_tuple)
     
     
     with Pool(45) as p:
@@ -323,16 +356,16 @@ if __name__ == '__main__':
         p.terminate()
         p.join()
     
-    print_in_csv(records)    '''
+    print_in_csv(records)
     
-    get_series_data_with_decades_list_code = partial(get_series_data_code,decades_tuple)
+    get_series_data_with_decades_list_code = partial(get_series_data_code,decades_tuple,df)
     
     with Pool(80) as p:
         records = p.map(get_series_data_with_decades_list_code,non_bilateral)
         p.terminate()
-        p.join() 
+        p.join()
 
-    print_in_csv(records)   
+    print_in_csv(records) 
     
     file.close()
     #print_in_csv(series_list) '''
