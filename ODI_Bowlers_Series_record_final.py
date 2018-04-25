@@ -11,12 +11,6 @@ from time import sleep
 import geocoder
 import pandas as pd
 
-final_list = []
-#records = []
-country_names=[]
-decade_tuple=()
-
-
 def get_all_countries(url):
     #print(decades_tuple)
     countries_list = []
@@ -67,7 +61,7 @@ def get_series_data(decades_tuple,cricket_url):
         series_url = 'http://www.howstat.com/cricket/Statistics/Series/' + series_code
         code = series_code.split("=")
         series_num = code[1].strip()
-        appended_url = series_url + '&Scope=All#bat'
+        appended_url = series_url + '&Scope=All#bowl'
         appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
         #print(appended_url)
         country_arr = [country_name]
@@ -93,7 +87,7 @@ def get_series_data_code(decades_tuple, df, series_code):
                 country_arr.append(i.strip())
         else:
             country_arr.append(country.strip())
-        appended_url = url + '&Scope=All#bat'
+        appended_url = url + '&Scope=All#bowl'
         appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
         #series_url = 'http://www.howstat.com/cricket/Statistics/Series/' + series_code + '&Scope=All#bat'
         #country_name = 
@@ -164,13 +158,13 @@ def get_details(appended_url, series_num,country_name,decades_tuple):
     soup = BeautifulSoup(page1.content, 'html.parser')
     #print(soup)
     #print(series_code)
-    batting_records = []
-    batting_records = soup.find('div', attrs={'id': re.compile("bat")})
+    bowling_records = []
+    bowling_records = soup.find('div', attrs={'id': re.compile("bowl")})
     '''if batting_records.size:
         return'''
     record_string = ""
-    if batting_records:    
-        tables = batting_records.find_all('tr', attrs={'bgcolor': re.compile("#")})
+    if bowling_records:    
+        tables = bowling_records.find_all('tr', attrs={'bgcolor': re.compile("#")})
         #table = div.find_all('table', attrs={'id': re.compile("TableLined")})
         #print(div.table)
         #print(tables)
@@ -326,9 +320,9 @@ if __name__ == '__main__':
     #cricket_url = "http://www.howstat.com/cricket/Statistics/Series/SeriesListCountry.asp?A=AUS&B=BAN&W=X"
     #print(all_series_list)
     
-    download_dir = "records_final_series_odi_v8.csv" #where you want the file to be downloaded to 
+    download_dir = "records_final_series_odi_bowlers.csv" #where you want the file to be downloaded to 
     file = open(download_dir, "a") 
-    header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index \n"
+    header = "Player,Country,Mat,Overs,Maidens,Runs,Wickets,4w,Best,Avg,S/R,E/R,Series_Code,H/A,Decade_Index\n"
     file.write(header)
     '''for snl_link in all_series_list[:1]:
         threads.append(threading.Thread(target=get_series_data, args=(snl_link,)))'''
@@ -363,3 +357,5 @@ if __name__ == '__main__':
     file.close()
     #print_in_csv(series_list) '''
     
+
+
