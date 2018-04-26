@@ -39,7 +39,7 @@ def get_all_countries(url):
     return countries_list,country_names
     
     
-def get_series_data(decades_tuple,cricket_url):
+def get_series_data(decades_tuple,series_wise_matches,cricket_url):
     url = cricket_url.strip()
     
     #print(proxies)
@@ -71,11 +71,11 @@ def get_series_data(decades_tuple,cricket_url):
         appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
         #print(appended_url)
         country_arr = [country_name]
-        record_string = record_string + get_details(appended_url, series_num,country_arr,decades_tuple)
+        record_string = record_string + get_details(appended_url, series_num,country_arr,decades_tuple,series_wise_matches)
     #print_in_csv(record_string)    
     return record_string 
     
-def get_series_data_code(decades_tuple, df, series_code):
+def get_series_data_code(decades_tuple, df, series_wise_matches, series_code):
     #elements = []  
     record_string=""
     #series_code = "0779"       
@@ -97,7 +97,7 @@ def get_series_data_code(decades_tuple, df, series_code):
         appended_url = appended_url.replace("SeriesStats_ODI.asp", "SeriesAnalysis_ODI.asp")
         #series_url = 'http://www.howstat.com/cricket/Statistics/Series/' + series_code + '&Scope=All#bat'
         #country_name = 
-        record_string = record_string + get_details(appended_url, series_code,country_arr,decades_tuple)
+        record_string = record_string + get_details(appended_url, series_code,country_arr,decades_tuple, series_wise_matches)
         #print_in_csv(record_string)
         return record_string
     else:
@@ -153,11 +153,14 @@ def get_series_data_code(decades_tuple, df, series_code):
         return country'''
        
     
-def get_details(appended_url, series_num,country_name,decades_tuple):
+def get_details(appended_url, series_num,country_name,decades_tuple,series_wise_matches):
     #page = requests.get(appended_url)
     #### to add the column decade in the csv ####
     decade_index = [decades_tuple.index(item) for item in decades_tuple if series_num in item]
-    decade_val = decade_index [0]
+    decade_val = decade_index[0]
+    matches_index = decades_tuple[decade_val].index(series_num)
+    matches_in_ser = series_wise_matches[decade_val][matches_index]
+    #print(matches_index)
     #proxies['http'] = random.choice(proxies_list)
     #page1 = requests.get(appended_url,proxies=proxies)
     page1 = requests.get(appended_url)
@@ -208,7 +211,7 @@ def get_details(appended_url, series_num,country_name,decades_tuple):
                 record_string = record_string + tdTag.text.strip() + ","
             
             #record_string.strip(-1)
-            record_string = record_string + series_num + "," +  H_A + "," + str(decade_val) + "\n"
+            record_string = record_string + series_num + "," +  H_A + "," + str(decade_val) +"," + str(matches_in_ser) + "\n"
             #print(record_string)
             #print_in_csv(record_string)
         #print(record_string)
@@ -236,6 +239,7 @@ def print_in_csv(records):
     #file.close()
 
 def get_series_with_decades(url):
+    series_wise_matches = ()
     decade_wise_series = ()
     non_bilateral = []
     partial_url = "http://www.howstat.com/cricket/Statistics/Series/"
@@ -250,16 +254,18 @@ def get_series_with_decades(url):
     for link in possible_links:
         series_decade_url = partial_url + link.get('href')
         url = series_decade_url.strip()
-        series_list_filtered, nbs_codes = all_series_of_decade(url)
+        series_list_filtered, nbs_codes, series_matches = all_series_of_decade(url)
         decade_wise_series = decade_wise_series + (series_list_filtered,)
+        series_wise_matches = series_wise_matches + (series_matches,)
         non_bilateral.append(nbs_codes)
     non_bilateral = [item for sublist in non_bilateral for item in sublist]
     #print(len(flat_list))
-    return decade_wise_series, non_bilateral
+    return decade_wise_series, non_bilateral, series_wise_matches
         
         
         
 def all_series_of_decade(url):
+    odi_matches = ()
     odi_series_code = ()
     non_bilateral_series = []
     url = url.strip()
@@ -271,25 +277,36 @@ def all_series_of_decade(url):
     #odi_series = soup.find_all('a', attrs={'class': re.compile("LinkNormal")})
     odi_series = soup.find_all('tr', attrs={'bgcolor': re.compile("#")})
     count = 0
+    #for x in series_codes:
+
     for tr in odi_series:                                                             
-        series_codes = tr.find_all('td')[::4]
-        for x in series_codes:
-            link = x.find('a', attrs={'class': re.compile("LinkNormal")})
-            series_url = link.get('href')
-            series_url = series_url.split("=")
-            series_url = series_url[1]
-            odi_series_code = odi_series_code + (series_url,)
-            
-        result = tr.find_all('td')[3::4]
-        for i in result:
-            t = i.text.strip()
-            if "-" not in t and t != "":
-                if t in country_names:
-                    #print(t)
-                    non_bilateral_series.append(odi_series_code[count])
-            count += 1
+        series_codes = tr.find_all('td')[0]
+        link = series_codes.find('a', attrs={'class': re.compile("LinkNormal")})
+        series_url = link.get('href')
+        series_url = series_url.split("=")
+        series_url = series_url[1]
+        odi_series_code = odi_series_code + (series_url,)
+        #print(odi_series_code)
+        series_matches = tr.find_all('td')[2]
+        #for x in series_codes:
+        link = series_matches.text.strip()
+        odi_matches = odi_matches + (link,)
+        #series_url = link.get('href')
+        #series_url = series_url.split("=")
+        #series_url = series_url[1]
+        #odi_series_code = odi_series_code + (series_url,)     
+        #print(link)
+        result = tr.find_all('td')[3]
+        #for i in result:
+        t = result.text.strip()
+        if "-" not in t and t != "":
+            if t in country_names:
+                #print(t)
+                non_bilateral_series.append(odi_series_code[count])
+        count += 1
+        #print(non_bilateral_series)
     #print(len(non_bilateral_series))
-    return odi_series_code, non_bilateral_series     
+    return odi_series_code, non_bilateral_series, odi_matches    
     '''for link in odi_series:
         series_url = link.get('href')
         series_url = series_url.split("=")
@@ -308,8 +325,9 @@ if __name__ == '__main__':
     #global country_names, decades_tuple, non_bilateral
     countries_list, country_names = get_all_countries(series_url)
     #print(country_names)
-    decades_tuple, non_bilateral = get_series_with_decades(series_url)
-    #print(decades_tuple)
+    decades_tuple, non_bilateral, series_wise_matches = get_series_with_decades(series_url)
+    #print(len(series_wise_matches))
+    #print(series_wise_matches)
     #print(non_bilateral)
     #print(decades_tuple)
     #print(len(non_bilateral))
@@ -326,9 +344,9 @@ if __name__ == '__main__':
     #cricket_url = "http://www.howstat.com/cricket/Statistics/Series/SeriesListCountry.asp?A=AUS&B=BAN&W=X"
     #print(all_series_list)
     
-    download_dir = "records_final_series_odi_v8.csv" #where you want the file to be downloaded to 
+    download_dir = "records_final_series_odi_v10.csv" #where you want the file to be downloaded to 
     file = open(download_dir, "a") 
-    header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index \n"
+    header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index ,Matches\n"
     file.write(header)
     '''for snl_link in all_series_list[:1]:
         threads.append(threading.Thread(target=get_series_data, args=(snl_link,)))'''
@@ -341,7 +359,7 @@ if __name__ == '__main__':
     
     for thread in threads:
         thread.join()'''
-    get_series_data_with_decades_list = partial(get_series_data,decades_tuple)
+    get_series_data_with_decades_list = partial(get_series_data,decades_tuple,series_wise_matches)
     
     
     with Pool(45) as p:
@@ -351,7 +369,7 @@ if __name__ == '__main__':
     
     print_in_csv(records)
     
-    get_series_data_with_decades_list_code = partial(get_series_data_code,decades_tuple,df)
+    get_series_data_with_decades_list_code = partial(get_series_data_code,decades_tuple,df,series_wise_matches)
     
     with Pool(80) as p:
         records = p.map(get_series_data_with_decades_list_code,non_bilateral)
@@ -361,5 +379,5 @@ if __name__ == '__main__':
     print_in_csv(records) 
     
     file.close()
-    #print_in_csv(series_list) '''
+    #print_in_csv(series_list) 
     
