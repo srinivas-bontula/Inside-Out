@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 30 23:25:12 2018
-
-@author: Vasthav
-"""
-
 import pandas as pd
 import numpy as np
 from numpy import unique, inf
@@ -12,79 +5,81 @@ import matplotlib.pyplot as plt
 from functools import partial
 import math
 
-class test_bowler:
+class odi_bowlers:
     
     def __init__(self):
-        self.country_number = {'Australia':0, 'Pakistan':1, 'New Zealand':2, 'West Indies':3, 'England':4, 'India' :5, 'Sri Lanka':6, 'Bangladesh':7, 'Zimbabwe':8, 'South Africa':9}
-        self.test_df = pd.read_csv("test_bowlers_statistics.csv")
-        self.total_entries = len(self.test_df.index)
+        self.country_number = {'Australia':0, 'Pakistan':1, 'New Zealand':2, 'West Indies':3, 'England':4, 'India' :5, 'Sri Lanka':6, 'Bangladesh':7, 'Zimbabwe':8, 'South Africa':9, 'Others':10}
+        self.odi_bowl_df = pd.read_csv("odi_bowlers_records.csv")
+        self.total_entries = len(self.odi_bowl_df.index)
         
     def player_appearences(self,players):
         players_dict = {}
         for i in range(self.total_entries):
-            if self.test_df["Player"][i] in players_dict.keys():
-                players_dict[self.test_df["Player"][i]] = players_dict[self.test_df["Player"][i]] + [i]
+            if self.odi_bowl_df["Player"][i] in players_dict.keys():
+                players_dict[self.odi_bowl_df["Player"][i]] = players_dict[self.odi_bowl_df["Player"][i]] + [i]
             else:
-                players_dict[self.test_df["Player"][i]] = [i]
+                players_dict[self.odi_bowl_df["Player"][i]] = [i]
         return players_dict        
     
-    def weighted_runs(self,series_code, series_country, series_occurances):
-        trps = np.zeros(723)
-        arpspc = np.zeros(10)
-        tmpc = np.zeros(10)
+    def weighted_runs(self,series_code, series_country, series_occurances, series_list):
+        trps = np.zeros(656)
+        arpspc = np.zeros(11)
+        tmpc = np.zeros(11)
         
         for i in range(self.total_entries):
-            avg = self.test_df["Avg"][i]
+            avg = self.odi_bowl_df["Avg"][i]
             if not np.isnan(avg):
-                trps[series_code[i]] += self.test_df["Runs"][i]
+                s = self.odi_bowl_df["Series_Code"][i]
+                index = np.where(series_list == s)[0]
+                trps[index] += self.odi_bowl_df["Runs"][i]
         
         for i in range(len(trps)):
-            tmpc[series_country[i]] += self.test_df['Mat'][series_occurances[i]]
-            arpspc[series_country[i]] += trps[i]      
+            tmpc[series_country[i]] += self.odi_bowl_df['Matches'][series_occurances[i]]
+            arpspc[series_country[i]] += trps[i]   
         
         arpc = arpspc/tmpc
         weights_arpc = np.average(arpc)/arpc
         
         weighted_runs_arr = []
         for i in range(self.total_entries):
-            weighted_runs_arr.append(self.test_df['Runs'][i]*weights_arpc[series_country[series_code[i]]])
+            weighted_runs_arr.append(self.odi_bowl_df['Runs'][i]*weights_arpc[series_country[series_code[i]]])        
         
         return weighted_runs_arr
               
     def calculate_player_metrics(self, series_code, weighted_runs_arr):
-        player_metrics=np.zeros((723,4))
+        player_metrics=np.zeros((656,4))
         balls = np.zeros(self.total_entries)
         for i in range(self.total_entries):
-            avg = self.test_df["Avg"][i]
+            avg = self.odi_bowl_df["Avg"][i]
             if not np.isnan(avg):
                 player_metrics[series_code[i]][0] += weighted_runs_arr[i]
-                player_metrics[series_code[i]][1] += self.test_df["Wickets"][i]
-                balls[i] = math.floor(self.test_df["Overs"][i])*6 + (self.test_df["Overs"][i]- math.floor(self.test_df["Overs"][i]))*10
+                player_metrics[series_code[i]][1] += self.odi_bowl_df["Wickets"][i]
+                balls[i] = math.floor(self.odi_bowl_df["Overs"][i])*6 + (self.odi_bowl_df["Overs"][i]- math.floor(self.odi_bowl_df["Overs"][i]))*10
                 player_metrics[series_code[i]][2] += balls[i]
                 
-            player_metrics[series_code[i]][3] += self.test_df["Overs"][i]
+            player_metrics[series_code[i]][3] += self.odi_bowl_df["Overs"][i]
         
         return player_metrics, balls
     
     def calculate_bowl(self,player_metrics, weighted_runs, balls, series_code):
         bowl = np.zeros((self.total_entries,3))
         for i in range(self.total_entries):
-            bowl[i][0] = (player_metrics[series_code[i]][0] - weighted_runs[i])/(player_metrics[series_code[i]][1]-self.test_df["Wickets"][i])
-            avg = self.test_df["Avg"][i]
+            bowl[i][0] = (player_metrics[series_code[i]][0] - weighted_runs[i])/(player_metrics[series_code[i]][1]-self.odi_bowl_df["Wickets"][i])
+            avg = self.odi_bowl_df["Avg"][i]
             bowl[i][0] = bowl[i][0]/avg
             if np.isnan(avg) or avg == 0:
                 bowl[i][0] = 0
                 
         
-            bowl[i][1] = (player_metrics[series_code[i]][0] - weighted_runs[i])/( player_metrics[series_code[i]][3]-self.test_df["Overs"][i])
-            e_r = self.test_df["E/R"][i]
+            bowl[i][1] = (player_metrics[series_code[i]][0] - weighted_runs[i])/( player_metrics[series_code[i]][3]-self.odi_bowl_df["Overs"][i])
+            e_r = self.odi_bowl_df["E/R"][i]
             bowl[i][1] = bowl[i][1]/e_r
             if e_r == 0:
                 bowl[i][1] = 0
         
      
-            bowl[i][2] = (player_metrics[series_code[i]][2]- balls[i])/(player_metrics[series_code[i]][1]-self.test_df["Wickets"][i])
-            s_r = self.test_df["S/R"][i]
+            bowl[i][2] = (player_metrics[series_code[i]][2]- balls[i])/(player_metrics[series_code[i]][1]-self.odi_bowl_df["Wickets"][i])
+            s_r = self.odi_bowl_df["S/R"][i]
             bowl[i][2] = bowl[i][2]/s_r
             if np.isnan(s_r) or s_r == 0:
                 bowl[i][2] = 0
@@ -95,31 +90,24 @@ class test_bowler:
         
     
     def host_and_opposition(self,series_occurances,series_list):
-        opposition_country =[]
         series_country = []
         j = 0
         for i in series_occurances:
             home = 0
-            away = 0
             j = i
+            s_code = self.odi_bowl_df['Series_Code'][i]
             while 1 != 0:
-                #print(j)
-                if self.test_df['H/A'][j] == 'Home' and home == 0:
-                    #print(df['Country'][j])
-                    series_country.append(self.country_number[self.test_df['Country'][j]]) 
+                if self.odi_bowl_df['H/A'][j] == 'Home' and home == 0:
+                    country = self.odi_bowl_df['Country'][j] 
                     home = home + 1
-                elif self.test_df['H/A'][j] == 'Away' and away == 0:    
-                    #print(df['Country'][j])
-                    opposition_country.append(self.country_number[self.test_df['Country'][j]]) 
-                    away = away + 1
-                elif home == 1 and away == 1:
-                    #print("hello")
-                    break
-                j = j + 1    
-        return series_country, opposition_country
-    
-
-    
+                if self.odi_bowl_df['Series_Code'][j]!=s_code or home ==1:
+                    break 
+                j = j + 1  
+            if country in self.country_number.keys():
+                series_country.append(self.country_number[country])
+            else:
+                series_country.append(10)
+        return series_country
     
     def average_runs_per_series_in_decade(self,rpcd, spcd, decade_weights):
         arpscd = rpcd/spcd
@@ -138,7 +126,7 @@ class test_bowler:
         for i in range(self.total_entries):
             if i==0:
                 count = 1
-            elif i == (self.total_entries - 1) or self.test_df["Series_Code"][i] != self.test_df["Series_Code"][i-1]:
+            elif i == (self.total_entries - 1) or self.odi_bowl_df["Series_Code"][i] != self.odi_bowl_df["Series_Code"][i-1]:
                 if i == 19847:
                     count += 1
                 x = np.array(range(count))
@@ -147,7 +135,7 @@ class test_bowler:
                 for i in y:
                     spv.append(i)
                 count = 1
-            elif self.test_df["Series_Code"][i] == self.test_df["Series_Code"][i-1]:
+            elif self.odi_bowl_df["Series_Code"][i] == self.odi_bowl_df["Series_Code"][i-1]:
                 count += 1
         
         return spv
@@ -162,7 +150,7 @@ class test_bowler:
             for j in players_app_dictionary[i]:
                 spf_sum += bowl[j][index]
                 no_series += 1
-                no_of_wickets += self.test_df["Wickets"][j]
+                no_of_wickets += self.odi_bowl_df["Wickets"][j]
                 #no_balls += balls[j]
             #if(no_balls > 4000):
             if(no_of_wickets > wickets):    
@@ -187,24 +175,26 @@ class test_bowler:
         return final_list
     
     def player_lists(self, all_time, country, number=5): 
-        decade_values = self.test_df['Decade_Index'].values
+        decade_values = self.odi_bowl_df['Decade_Index'].values
         total_decades, series_decade_index = unique(decade_values, return_inverse = True)  
         
-        players = self.test_df['Player'].values
+        players = self.odi_bowl_df['Player'].values
         player_names, player_indices = unique(players, return_index = True)
         players_app_dictionary = self.player_appearences(players)
         
-        series_codes = self.test_df['Series_Code'].values
+        series_codes = self.odi_bowl_df['Series_Code'].values
         series_list, series_occurances, series_code = unique(series_codes, return_index = True, return_inverse= True)
         
-        series_country, opposition_country = self.host_and_opposition(series_occurances,series_list)
+        series_list = list(series_list)
+        series_country= self.host_and_opposition(series_occurances,series_list)
         
-        weighted_runs = self.weighted_runs(series_code, series_country, series_occurances)
+        weighted_runs = self.weighted_runs(series_code, series_country, series_occurances, series_list)
             
         player_metrics, balls = self.calculate_player_metrics(series_code, weighted_runs)
         
         players_list = self.cumilative_spf(player_names, players_app_dictionary, player_metrics,weighted_runs, balls, series_code, 100)
         players_list_50 = self.cumilative_spf(player_names, players_app_dictionary, player_metrics,weighted_runs, balls, series_code, 50)
+        players_list_20 = self.cumilative_spf(player_names, players_app_dictionary, player_metrics,weighted_runs, balls, series_code, 20)
         players_list_7 = self.cumilative_spf(player_names, players_app_dictionary, player_metrics,weighted_runs, balls, series_code, 7)
         #final_batsman_rankings_partial = partial(self.final_batsman_rankings, player_names,players_app_dictionary,weighted_runs, spv)
         final_player_list = []
@@ -219,7 +209,7 @@ class test_bowler:
                 for k,v in players_list:
                     first_app = player_indices[np.where(player_names == k)[0][0]]
                     #print(first,"->",df[' Decade_Index '][first])
-                    if self.test_df['Country'][first_app] == country:
+                    if self.odi_bowl_df['Country'][first_app] == country:
                         player = str(k)
                         final_player_list.append(player)
                         count += 1
@@ -230,7 +220,7 @@ class test_bowler:
                     count = 0
                     for k,v in players_list_50:
                         first_app = player_indices[np.where(player_names == k)[0][0]]
-                        if self.test_df['Country'][first_app] == country:
+                        if self.odi_bowl_df['Country'][first_app] == country:
                             player = str(k)
                             final_player_list.append(player)
                             count += 1
@@ -244,63 +234,63 @@ class test_bowler:
                 for k,v in players_list:
                     first_app = player_indices[np.where(player_names == k)[0][0]]
                     #print(first,"->",df[' Decade_Index '][first])
-                    if self.test_df['Decade_Index'][first_app] >= 6:
+                    if self.odi_bowl_df['Decade_Index'][first_app] >= 4:
                         count += 1
                         player = str(k)+':'+str(v)
                         final_player_list.append(player)
-                    if count == number:
+                    if count == number+3:
                         break
             else:
                 count = 0
                 for k,v in players_list:
                     first_app = player_indices[np.where(player_names == k)[0][0]]
                     #print(first,"->",df[' Decade_Index '][first])
-                    if self.test_df['Country'][first_app] == country:
-                        if self.test_df['Decade_Index'][first_app] >= 6:
+                    if self.odi_bowl_df['Country'][first_app] == country:
+                        if self.odi_bowl_df['Decade_Index'][first_app] >= 4:
                             count += 1
                             player = str(k)
                             final_player_list.append(player)
                             #print(k,":",v)
-                        if count == number:
+                        if count == 7:
                             break 
-                if count < number:
+                if count < 7:
                     final_player_list = list()
                     count = 0
                     for k,v in players_list_50:
                         first_app = player_indices[np.where(player_names == k)[0][0]]
-                        if self.test_df['Country'][first_app] == country:
-                            if self.test_df['Decade_Index'][first_app] >= 6:
+                        if self.odi_bowl_df['Country'][first_app] == country:
+                            if self.odi_bowl_df['Decade_Index'][first_app] >= 4:
                                 count += 1
                                 player = str(k)
                                 final_player_list.append(player)
                                 #print(k,":",v)
-                            if count == number:
+                            if count == 7:
                                 break 
         elif all_time == "next":
             count=0
-            for k,v in players_list_50:
+            for k,v in players_list_20:
                 last = players_app_dictionary[k][-1]
                 #print(first)
                 #print(first,"->",df[' Decade_Index '][first])
-                if self.test_df['Country'][last] == country and self.test_df["Decade_Index"][last]>=13:
+                if self.odi_bowl_df['Country'][last] == country and self.odi_bowl_df["Decade_Index"][last]>=8:
                     player = str(k)
                     final_player_list.append(player)
                     count += 1
-                if count == 10:
+                if count == 12:
                     break
-            if count < 10:
+            if count < 12:
                 final_player_list = []
                 count = 0
                 for k,v in players_list_7:
                     last = players_app_dictionary[k][-1]
                 #print(first)
                 #print(first,"->",df[' Decade_Index '][first])
-                    if self.test_df['Country'][last] == country and self.test_df['Decade_Index'][last] >= 13:
+                    if self.odi_bowl_df['Country'][last] == country and self.odi_bowl_df['Decade_Index'][last] >= 8:
                         player = str(k)
                         final_player_list.append(player)
                         count += 1
-                    if count == 10:
+                    if count == 12:
                         break                   
                             
         return final_player_list
-                          
+                      

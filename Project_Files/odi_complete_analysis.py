@@ -1,14 +1,15 @@
-import test_batsman_analysis as tbat
-import test_bowlers_analysis as tbowl
+import odi_batsman_analysis as obat
+import odi_bowlers_analysis as obowl
+from time import sleep
 import warnings
 
 if __name__ == '__main__':
-    batsman = tbat.test_batsman()
-    bowlers = tbowl.test_bowlers()
+    batsman = obat.odi_batsman()
+    bowlers = obowl.odi_bowlers()
     warnings.filterwarnings('ignore')  
     number = 5
     countries = {0: "all", 1: "Australia", 2:"Bangladesh" , 3:"England", 4:"India", 5:"New Zealand", 6:"Pakistan", 7:"South Africa", 8: "Sri Lanka", 9:"West Indies", 10: "Zimbabwe"}
-    print("Welcome to Test analysis")
+    print("Welcome to ODI analysis")
     op_input = input('Batting -> Bat \nBowling -> Bowl \nTeam -> Team \n Select which analysis: ')
     if op_input.lower() == 'team':
         option_input = input('all_time -> a\nmodern -> m\nsquad_prediction -> next\nselect one of the options: ')
@@ -26,7 +27,7 @@ if __name__ == '__main__':
                 if i not in players_bat:
                     print(i)
                     count += 1
-                if count == 15:
+                if count == 20:
                     break
         else:
             print("\n")
@@ -37,7 +38,7 @@ if __name__ == '__main__':
                 if i not in players_bat:
                     print(i)
                     count += 1
-                if count == 11:
+                if count == 20:
                     break
     elif op_input.lower() == 'bat':
         option_input = input('all_time -> a\nmodern -> m\nselect one of the options: ')
@@ -60,6 +61,7 @@ if __name__ == '__main__':
         print("\n")
         for k in players_bowl:
             print(k)
+    sleep(60)
     
         
         
