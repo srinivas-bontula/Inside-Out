@@ -8,6 +8,7 @@ import itertools as it
 import threading
 
 def get_all_countries(url):
+    #returns all the test playing country codes and names 
     countries_list = []
     
     url = url.strip()
@@ -24,6 +25,7 @@ def get_all_countries(url):
     
     
 def get_series_data(cricket_url):
+    # This function gets all the series data for a given pair of countries
     record_string = ""
     
     url = cricket_url.strip()
@@ -48,7 +50,7 @@ def get_series_data(cricket_url):
         
         
 def get_details(appended_url, series_code,country_name):
-
+    #returns the players statistics for a particular series given the series_code 
     code = series_code.split("=")
     series_num = code[1].strip()
 
@@ -86,10 +88,12 @@ def get_details(appended_url, series_code,country_name):
     return record_string
     
 def print_in_csv(records):
+    #prints all the records into the csv file 
     for line in records:
         file.write(line)
 
 def get_series_with_decades(url):
+    #return the groups of series codes into decades
     decade_wise_series = ()
     
     url = url.strip()
@@ -109,6 +113,7 @@ def get_series_with_decades(url):
         
         
 def all_series_of_decade(url):
+    # returns the tuple of the series codes given the url for a decade
     test_series_code = ()
     
     url = url.strip()
@@ -137,7 +142,7 @@ if __name__ == '__main__':
         list_series_url = partial_url + "A=" + country1 +"&B=" + country2  
         all_series_list.append(list_series_url)
 
-    download_dir = "test_batsman_records_1.csv" #where you want the file to be downloaded to 
+    download_dir = "records_final_series_test_final_corrected_v1.csv" #where you want the file to be downloaded to 
     file = open(download_dir, "a") 
     header = "Player,Country,% Team Runs,Mat,Inns,NO,50s,100s,0s,HS,Runs,S/R,Avg,Ca,St,Series_Code, H/A, Decade_Index \n"
     file.write(header)
