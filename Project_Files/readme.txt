@@ -3,13 +3,17 @@ The following are the instructions for executing the python files to collect dat
 Data Collection:
 1. Tests:
 	Execute the python files(test_batsman_data.py and test_bowlers_data.py). 
-	The result would be 2 CSV files(test_batsman_records.csv and test_bowlers_records.csv respectively)
+	The result would be 2 CSV files(test_batsman_records_1.csv and test_bowlers_records_1.csv respectively)
 	The overall execution should take 3 minutes for each file.
 
 2. ODIS:
 	Execute the python files(odi_batsman_data.py and odi_bowlers_data.py). 
-	The result would be 2 CSV files(odi_batsman_records.csv and odi_bowlers_records.csv respectively)
+	The result would be 2 CSV files(odi_batsman_records_1.csv and odi_bowlers_records_1.csv respectively)
 	The overall execution should take 3 minutes for each file.
+
+Note: 	For Tests we have used threading so there is a small set of records which are misaligned and have been corrected manually.
+	Apply the custom sort on the csv files on decades, then series_code and finally runs for batsman and wickets for bowler.
+	So use the files provided in the submission.
 
 Results:
 
